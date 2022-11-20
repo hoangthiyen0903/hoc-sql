@@ -170,3 +170,59 @@ SELECT tbldetai.Madt, tbldetai.Tendt
 FROM tbldetai
 ORDER BY Kinhphi DESC
 LIMIT 1;
+
+
+
+-- 5. Cho biết mã số và tên các đề tài có nhiều hơn 2 sinh viên tham gia thực tập
+-- CACH 1
+SELECT DISTINCT tbldetai.Madt, tbldetai.Tendt
+FROM tbldetai JOIN tblhuongdan
+ON tbldetai.Madt = tblhuongdan.Madt
+WHERE (SELECT COUNT(tblhuongdan.Masv) FROM tblhuongdan WHERE Madt = tbldetai.Madt) >= 2;
+
+-- CACH 2
+SELECT tbldetai.Madt, tbldetai.Tendt
+FROM tbldetai JOIN tblhuongdan
+ON tbldetai.Madt = tblhuongdan.Madt
+WHERE (SELECT COUNT(tblhuongdan.Masv) FROM tblhuongdan WHERE Madt = tbldetai.Madt) >= 2
+GROUP BY tbldetai.Madt, tbldetai.Tendt;
+
+
+-- 6. Đưa ra mã số, họ tên và điểm của các sinh viên khoa DIALY và QLTN
+
+SELECT tblsinhvien.Masv, tblsinhvien.Hotensv, tblhuongdan.KetQua
+FROM tblsinhvien JOIN tblhuongdan
+ON  tblsinhvien.Masv = tblhuongdan.Masv
+JOIN tblkhoa
+ON  tblsinhvien.Makhoa = tblkhoa.Makhoa
+WHERE tblkhoa.Tenkhoa = 'Dia ly va QLTN';
+
+
+
+-- 7. Đưa ra tên khoa, số lượng sinh viên của mỗi khoa
+SELECT tblkhoa.Tenkhoa, COUNT(tblsinhvien.Makhoa) AS soluongsv
+FROM tblkhoa JOIN tblsinhvien
+ON  tblkhoa.Makhoa = tblsinhvien.Makhoa
+GROUP BY tblsinhvien.Makhoa;
+
+
+-- 8. Cho biết thông tin về các sinh viên thực tập tại quê nhà
+SELECT tblsinhvien. *
+FROM tblsinhvien JOIN tblhuongdan
+ON tblhuongdan.Masv = tblsinhvien.Masv
+JOIN tbldetai
+ON tbldetai.Madt = tblhuongdan.Madt
+WHERE tblsinhvien.Quequan = tbldetai.Noithuctap;
+
+-- 9. Hãy cho biết thông tin về những sinh viên chưa có điểm thực tập
+SELECT tblsinhvien. *
+FROM tblsinhvien JOIN tblhuongdan
+ON tblhuongdan.Masv = tblsinhvien.Masv
+WHERE tblhuongdan.KetQua IS NULL;
+
+
+-- 10. Đưa ra danh sách gồm mã số, họ tên các sinh viên có điểm thực tập bằng 0
+SELECT tblsinhvien.Masv, tblsinhvien.Hotensv
+FROM tblsinhvien JOIN tblhuongdan
+ON tblhuongdan.Masv = tblsinhvien.Masv
+WHERE tblhuongdan.KetQua = 0;
