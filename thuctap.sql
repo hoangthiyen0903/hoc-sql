@@ -84,9 +84,89 @@ SELECT tblgiangvien.Magv, tblgiangvien.Hotengv, tblkhoa.Tenkhoa
 FROM tblgiangvien JOIN  tblkhoa
 ON  tblgiangvien.Makhoa = tblkhoa.Makhoa 
 
+-- 6. (CACH 1) Cho biết thông tin về sinh viên không tham gia thực tập
+SELECT tblsinhvien.Masv, tblsinhvien.Hotensv, tblsinhvien.Makhoa, tblsinhvien.Namsinh, tblsinhvien.Quequan 
+FROM tblsinhvien  
+WHERE (SELECT COUNT(tblhuongdan.Masv) FROM tblhuongdan WHERE Masv = tblsinhvien.Masv) = 0;
+  
+
+-- 6.(CACH 2) Cho biết thông tin về sinh viên không tham gia thực tập
+SELECT tblsinhvien.Masv, tblsinhvien.Hotensv, tblsinhvien.Makhoa, tblsinhvien.Namsinh, tblsinhvien.Quequan 
+FROM tblsinhvien LEFT JOIN  tblhuongdan
+ON  tblsinhvien.Masv =  tblhuongdan.Masv
+WHERE tblhuongdan.Masv IS NULL;
 
 
+-- 6.(CACH 3) Cho biết thông tin về sinh viên không tham gia thực tập
+SELECT tblsinhvien.Masv, tblsinhvien.Hotensv, tblsinhvien.Makhoa, tblsinhvien.Namsinh, tblsinhvien.Quequan 
+FROM tblsinhvien  
+WHERE NOT EXISTS (SELECT tblhuongdan.Masv FROM tblhuongdan WHERE Masv = tblsinhvien.Masv);
+  
+
+-- 7. Đưa ra mã khoa, tên khoa và số giảng viên của mỗi khoa
+SELECT 
+	Makhoa, 
+  Tenkhoa, 
+	(SELECT COUNT(Magv) FROM tblgiangvien WHERE tblkhoa.Makhoa = Makhoa) AS Sogvmoikhoa
+FROM tblkhoa;
+
+-- 4. Đưa ra danh sách gồm mã số, họ tên và tuổi của các sinh viên khoa TOAN 
+-- CACH 1:
+SELECT tblsinhvien.Masv, tblsinhvien.Hotensv,
+-- (SELECT YEAR(CURDATE()) - tblsinhvien.Namsinh ) AS Tuoi
+IFNULL((SELECT YEAR(CURDATE()) - tblsinhvien.Namsinh), 0) AS Tuoi
+FROM tblsinhvien;
+
+-- CACH 2:
+SELECT tblsinhvien.Masv, tblsinhvien.Hotensv,
+-- (SELECT YEAR(CURDATE()) - tblsinhvien.Namsinh ) AS Tuoi
+IFNULL((SELECT YEAR(CURDATE()) - tblsinhvien.Namsinh), 0) AS Tuoi
+FROM tblsinhvien;
+
+-- CACH 3:
+SELECT tblsinhvien.Masv, tblsinhvien.Hotensv,
+(CASE
+WHEN tblsinhvien.Namsinh IS NULL THEN 0
+ELSE YEAR(CURDATE()) - tblsinhvien.Namsinh
+END) AS Tuoi  
+FROM tblsinhvien;
+
+-- 8. Cho biết số điện thoại của khoa mà sinh viên có tên Le van son đang theo học
+SELECT tblkhoa.Dienthoai
+FROM tblkhoa JOIN  tblsinhvien
+ON  tblkhoa.Makhoa = tblsinhvien.Makhoa
+WHERE tblsinhvien.Hotensv = 'Le Van Son'
+
+-- II
+-- 1. Cho biết mã số và tên của các đề tài do giảng viên Tran son hướng dẫn
+SELECT tbldetai.Madt, tbldetai.Tendt 
+FROM tbldetai JOIN tblhuongdan
+ON  tbldetai.Madt = tblhuongdan.Madt
+JOIN tblgiangvien
+ON  tblgiangvien.Magv = tblhuongdan.Magv
+WHERE tblgiangvien.Hotengv = 'Tran son'
+
+-- 2. Cho biết tên đề tài không có sinh viên nào thực tập
+SELECT tbldetai.Madt,  
+FROM tbldetai  
+WHERE NOT EXISTS (SELECT tblhuongdan.Masv FROM tblhuongdan WHERE Madt = tbldetai.Madt);
 
 
+SELECT tbldetai.Madt,  
+FROM tbldetai
+WHERE (SELECT COUNT(tblhuongdan.Masv) FROM tblhuongdan WHERE Masv = tblsinhvien.Masv) = 0;
+
+-- 3. Cho biết mã số, họ tên, tên khoa của các giảng viên hướng dẫn từ 3 sinh viên trở lên.
+SELECT tblgiangvien.Magv, tblgiangvien.Hotengv, tblkhoa.Tenkhoa 
+FROM tblgiangvien JOIN tblkhoa
+ON tblgiangvien.Makhoa = tblkhoa.Makhoa
+WHERE (SELECT COUNT(tblhuongdan.Magv) FROM tblhuongdan WHERE tblgiangvien.Magv = tblhuongdan.Magv) >= 3;
 
 
+-- 4. Cho biết mã số, tên đề tài của đề tài có kinh phí cao nhất
+
+-- CACH 1: 
+SELECT tbldetai.Madt, tbldetai.Tendt
+FROM tbldetai
+ORDER BY Kinhphi DESC
+LIMIT 1;
