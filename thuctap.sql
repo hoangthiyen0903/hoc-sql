@@ -226,3 +226,20 @@ SELECT tblsinhvien.Masv, tblsinhvien.Hotensv
 FROM tblsinhvien JOIN tblhuongdan
 ON tblhuongdan.Masv = tblsinhvien.Masv
 WHERE tblhuongdan.KetQua = 0;
+
+-- 11. viết sql insert mới 3 sinh viên với thông tin bất kì 
+INSERT INTO tblsinhvien VALUES
+(10,'Le Van Hieu','Bio', 1996,'Nghe An'),
+(11,'Nguyen Thi Xuan','Geo', 1991,'Da Lat'),
+(12,'Bui Xuan Cong','Math', 1992,'Hai Phong');
+
+
+-- 12. Update quê quán những sv  có quê quán là NULL thành 'N/A"
+UPDATE tblsinhvien
+SET Quequan = "N/A"
+WHERE Quequan IS NULL;
+
+
+-- 13. Xóa đi những sinh viên ko có năm sinh
+DELETE FROM tblsinhvien
+WHERE Namsinh IS NULL;
